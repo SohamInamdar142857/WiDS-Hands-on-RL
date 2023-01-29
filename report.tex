@@ -1,0 +1,171 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{float}
+  
+%
+% Title[Enter title of the experiment here]
+\title{Hands-On Reinforcement Learning\\
+\large WiDS, Analytics Club, IIT Bombay
+}
+
+% Author[Enter details of author here]
+\author{Soham Rahul Inamdar}
+
+% begin the document.
+\begin{document}
+
+% make a title page.[this creates title page]
+\maketitle
+
+ 
+
+\section{Overview of the project} 
+This project was an introductory project in  \textbf{Reinforcement Learning}, an  area of machine learning concerned with how intelligent agents ought to take actions in an environment in order to maximize the notion of cumulative reward. Reinforcement learning is one of three basic machine learning paradigms, alongside supervised learning and unsupervised learning.
+
+\subsection{Project Flow}%[This segment creates sebsections under the same section]
+The project started off with our mentors providing us with a bird's eye view of RL and a review of basic probability theory which forms the very basis of most areas of Machine Learning. This was followed by a study of the n-armed bandit problem and various algorithms to solve it which are described in detail further in this report. Further, we studied the mathematical formulation of Markov Decision Problems(MDPs) and methods of solving them in a rather rigorous fashion.
+\noindent
+Overall, this was a project with a quite steep learning curve when it came to the mathematical part which helped me understand the basic formulation of reinforcement learning problems and will enable me to explore this field further.
+
+
+
+
+\section{Part-1}%[To add multiple sections, keep appending blocks like this]
+\subsection{Bird's Eye View of Reinforcement Learning}
+Reinforcement learning is a computational approach to understanding and automating goal-directed learning and decision-making. The primary difference between reinforcement learning and most other forms of machine learning is that when it comes to RL, the learning agent is not told which actions to take but instead the learner discovers which actions yield the largest reward by trying them out.
+
+\subsection{The Multi-Arm Bandit Problem}
+ The original form of the $n-armed$ $bandit$ $problem$ can be seen as a slot machine having $n$ levers which will be referred to as actions in reference to the problem. So, the agent is supposed to choose an action to maximize the cumulative reward. If the agent already knew the value of each action it would be trivial to solve this problem. \\
+
+ \noindent
+ \textbf{But how do we proceed when the agent has no prior information about the values corresponding to each action?} \\
+
+
+ \noindent
+Solving the above problem requires us to build a mathematical framework that will help us provide elegant solutions without any $hand-wavy$ assumptions. We denote the true value corresponding to an action $a$ by $q(a)$ and the estimated value at the $t^{th}$ time-step to be $Q_{t}(a)$.\\
+So if the action $a$ has been taken $N_{t}(a)$ times before time $t$ with corresponding rewards being $R_{1}, R_{2},R_{3}...,R_{N_{t}(a)}$ :
+ 
+\begin{equation}
+Q_t(a)=\frac{R_{1}+R_{2}+R_{3}+...R_{N_{t}(a)}}{N_{t}(a)}    
+\end{equation}   
+We define the initial value i.e $Q_{1}(a)=0$ as a convention.
+
+\noindent
+ So, now our goal is to maximize the average reward over time. As a part of this project, we explored three algorithms to achieve this goal which are as follows:
+ \newpage
+ \begin{enumerate}
+     \item \textbf{$\epsilon$-greedy Algorithm:} The most obvious idea one can have to solve our problem is to always choose the action with the highest value. However, in this method, the agent will not be able to explore and estimate the values of other actions which may be more than that of the currently optimal action. So the algorithm we follow is that we choose the optimal action $A_{t}=argmax$ $Q_{t}(a)$ most of the time, thereby exploiting our previous knowledge. However, with a small probability $\epsilon$, we choose an action at random so that we can explore other states as well.
+
+     \item \textbf{UCB Algorithm:} Owing to the uncertainty in action-value estimates, one needs to explore some non-optimal actions as well as we saw in the $\epsilon$-greedy algorithm. But, instead of choosing the exploratory action randomly, we now take into account how close the estimate of a non-greedy action is to the optimal value and hence the algorithm we follow here is:
+     \begin{equation}
+         A_{t}=argmax  \Biggr[ Q_{t}(a)+c\sqrt{\frac{lnt}{N_{t}(a)}}\Biggr]
+     \end{equation}
+     Here, the factor $c$ controls the degree of exploration. An action $a$ is considered to be a maximizing action if $N_{t}(a)=0$. The square-root expression is a measure of the uncertainty in the estimated value of action $a$.
+
+     \item \textbf{Thompson Sampling Algorithm:} This is another algorithm for sampling/pulling a MAB. Here, a list of successes $s_{t}(a)$ and failures $f_{t}(a)$
+ of the arms is maintained, and then the following samples are drawn for each arm,
+ \begin{equation}
+     n_{t}(a)=\beta(s_{t}(a)+1,f_{t}(a)+1)
+\end{equation}
+\begin{equation}
+    A_{t}=argmax(n_{t}(a)
+\end{equation}
+where $\beta$ denotes the Beta Distribution. Then, the arm with the highest value of such a sample is chosen. In the background, a bayesian update is happening, which ensures that this algorithm works well.
+
+ \end{enumerate}
+
+
+ \newpage
+ \noindent
+The performance of the three algorithms can be seen in the graphs given below:
+\begin{figure}[ht]
+  % will center the figure.
+  \centering
+  % include graphics (can include eps, jpg, pdf ...)
+  \includegraphics[scale=1]{algo.png}
+  % give a caption.
+  \caption{Average Reward vs Time plot for the algorithms}
+  % a label to refer to the figure
+  \label{fig:demofig1}
+\end{figure}
+
+    
+
+\section{Part-2: Markov Decision Problems}
+A general MDP is characterized by the following elements:
+\begin{itemize}
+    \item S=$\bigl\{s_{1},s_{2},s_{3},...,s_{n}\bigl\}$: Set of states
+    \item A=$\bigl\{a_{1},a_{2},a_{3},...,a_{k}\bigl\}$: Set of actions
+    \item $T(s,a,s')$: Probability of reaching $s$' by starting at $s$ and taking action $a$
+    \item $R(s,a,s')$: Reward for reaching $s$' by starting at $s$ and taking action $a$
+    \item $\gamma$: Discount factor
+\end{itemize}
+
+\noindent
+Apart from the ones given above, we also use a few other parameters which help us to formulate solutions for MDPs:
+\begin{itemize}
+    \item Policy($\pi(s)$): $\pi(s):S\rightarrow A$ is a map from set S to A. It defines the actions which the agent should take when it is in a particular state.
+    \item State Values for policy $\pi$:
+    $V_{\pi}(s)$ is expressed as:
+    \begin{equation}
+        V_{\pi}(s)=\sum_{s'\in S}T(s,\pi(s),s')\bigl\{R(s,\pi(s),s')+\gamma V_{\pi}(s')\bigl\}
+    \end{equation}
+\end{itemize}
+
+\noindent
+So, now that we have defined all the parameters required, we will look at various methods of dynamic programming we can use to solve MDPs. 
+
+\begin{enumerate}
+    \item \textbf{Value Iteration:} An assignment to implement the dynamic programming algorithm value iteration from scratch was completed. The psuedo code for the algorithm is:
+
+    
+$V_0$ is a bounded arbitary n length vector.
+\newline
+$t \leftarrow 0$ 
+
+
+While $V_t \neq V_{t-1}$ \\
+For all states $s \in S$\\
+$V_{t+1}(s)=\max_{a\in A}\sum_{s'\in S}T(s,a,s')\{R(s,a,s')+\gamma V_t(s')\}\\$
+$t \leftarrow t+1$
+\item \textbf{Policy Iteration:}
+Policy iteration involves the selection of a random policy $\pi$ initially. As long as $\pi$ is improvable, $\pi$ will be improved to a better policy. Psuedo code for policy iteration is:
+
+
+While $\pi$ is improvable:
+ $\pi '\leftarrow$ Improve policy
+ ($\pi) \\
+ \pi \leftarrow \pi '$
+\end{enumerate}
+
+
+\section{Learnings}
+This project was a great introduction to Reinforcement Learning and helped me learn the foundational concepts of the same. Also, this project taught me that  mathematical rigor is important for studying any area of machine learning.
+
+
+ 
+
+ %equations are to be inserted in this manner.
+
+
+
+
+\begin{thebibliography}{99}
+
+
+\bibitem k
+All the references and coding assignments can be found here.
+{\em https://github.com/SohamInamdar142857/WiDS-Hands-on-RL}
+%
+% etc..
+%
+
+\end{thebibliography}
+
+
+
+
+  
+
+\end{document}
